@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>地图展示</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: "cf7b3aaa3e53a6381d4cdd0bc657f8b2",
+        };
+    </script>
+    <script type="text/javascript"
+        src="https://webapi.amap.com/maps?v=1.4.15&key=f884cdb94b87421e8c7a00f75f9f30eb&plugin=AMap.Geocoder">
+        </script>
+</head>
+
+<body>
+    <button id="togglePanelBtn"><span id="arrowIcon">&#9658;</span></button>
+
+    <div id="sidePanel" class="side-panel">
+        <!-- 表格和其他内容 -->
+        <div id="records">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-type="string" data-column="customer">姓名<span class="sort-icon">&#9660;</span></th>
+                        <th data-type="string" data-column="city">地区<span class="sort-icon">&#9660;</span></th>
+                        <th data-type="date" data-column="date">日期<span class="sort-icon">&#9660;</span></th>
+                        <th data-type="string" data-column="gender">性别<span class="sort-icon">&#9660;</span></th>
+                        <th data-type="string" data-column="age">年龄<span class="sort-icon">&#9660;</span></th>
+                        <th data-type="string" data-column="face">部位<span class="sort-icon">&#9660;</span></th>
+                        <th data-type="string" data-column="time">患病时长<span class="sort-icon">&#9660;</span></th>
+                        <th data-type="string" data-column="reason">病因<span class="sort-icon">&#9660;</span></th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsBody">
+                    <!-- 记录将被动态添加到这里 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="map"></div>
+    <form id="purchaseForm">
+        <!-- 姓名和年龄 -->
+        <div class="form-row">
+            <input type="text" id="customer" placeholder="姓名" required>
+            <input type="number" id="age" placeholder="年龄" required style="margin-left: 10px;">
+            <input type="text" id="city" placeholder="地区" required style="margin-left: 10px;">
+        </div>
+
+        <!-- 地区和日期 -->
+        <div class="form-row">
+
+            <input type="date" id="purchaseTime" placeholder="时间" required >
+            <input type="text" id="time" placeholder="患病时长(年/月/日)" required style="margin-left: 10px;">
+            <input type="text" id="reason" placeholder="病因" required style="margin-left: 10px;">
+        </div>
+        <!-- 性别和左右脸 -->
+        <div class="form-row">
+            <div class="radio-group" style="margin-left: 70px;">
+                性别:
+                <label><input type="radio" name="gender" value="男" required> 男</label>
+                <label><input type="radio" name="gender" value="女"> 女</label>
+            </div>
+            <div class="radio-group" style="margin-right: 70px;">
+                部位:
+                <label><input type="radio" name="face" value="左脸" required> 左脸</label>
+                <label><input type="radio" name="face" value="右脸"> 右脸</label>
+            </div>
+        </div>
+
+
+
+        <button type="submit">提交用户信息</button>
+    </form>
+
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var myMap = L.map('map').setView([37.86166, 107.195397], 5.4);
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '地图数据 &copy; OpenStreetMap贡献者'
+        }).addTo(myMap);
+
+        function loadPurchases() {
+            // 清除地图上现有的所有标记
+            myMap.eachLayer(function (layer) {
+                if (!!layer.toGeoJSON) {
+                    myMap.removeLayer(layer);
+                }
+            });
+
+            // 重新从服务器获取购买记录，并添加新的标记
+            fetch('http://47.103.10.235:3000/api/purchases')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(purchase => {
+                        const { latitude, longitude, customer, city, date, gender, age, face, time, reason } = purchase;
+                        let formattedDate = new Intl.DateTimeFormat('zh-CN').format(new Date(date));
+                        L.marker([latitude, longitude]).addTo(myMap)
+                            .bindPopup(`                        
+                            姓名: ${customer}<br>
+                        地址: ${city}<br>
+                        日期: ${formattedDate}<br>
+                        性别: ${gender}<br>
+                        年龄: ${age}<br>
+                        部位: ${face}<br>
+                        患病时长: ${time}<br>
+                        病因: ${reason}`);
+                    });
+                })
+                .catch(error => console.error('Error loading purchases:', error));
+        }
+        // 调用函数来加载购买记录
+        loadPurchases();
+
+        var geocoder = new AMap.Geocoder({
+            // 如果你的应用主要面向全国范围，可以尝试移除city参数或设为空字符串
+            // 如果面向特定城市，可以在这里指定城市编码
+            city: "", // 全国范围
+        });
+
+
+
+        document.getElementById('purchaseForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            var customer = document.getElementById('customer').value;
+            var city = document.getElementById('city').value;
+            var date = document.getElementById('purchaseTime').value;
+            var gender = document.querySelector('input[name="gender"]:checked').value;
+            var age = document.getElementById('age').value;
+            var face = document.querySelector('input[name="face"]:checked').value;
+            var time = document.getElementById('time').value;
+            var reason = document.getElementById('reason').value;
+
+            geocoder.getLocation(city, function (status, result) {
+                if (status === 'complete' && result.geocodes.length) {
+                    var latLng = result.geocodes[0].location;
+                    fetch('http://47.103.10.235:3000/api/purchases', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            customer: customer,
+                            city: city,
+                            date: date,
+                            latitude: latLng.lat,
+                            longitude: latLng.lng,
+                            gender: gender,
+                            age: age,
+                            face: face,
+                            time: time,
+                            reason: reason
+                        }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Purchase added:', data);
+                            fetchAndDisplayPurchases(); // 确保添加记录后更新表格和地图
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
+                } else {
+                    console.error('Geocode failed:', city);
+                }
+            });
+        });
+
+
+
+        // 在document.getElementById('purchaseForm').addEventListener之后添加以下代码
+
+        function fetchAndDisplayPurchases() {
+            // 从服务器获取数据并更新表格和地图标记
+            fetch('http://47.103.10.235:3000/api/purchases')
+                .then(response => response.json())
+                .then(purchases => {
+                    const recordsBody = document.getElementById('recordsBody');
+                    recordsBody.innerHTML = ''; // 清空现有的表格行
+
+                    purchases.forEach(purchase => {
+                        // 添加每一条记录到表格
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                <td>${purchase.customer}</td>
+                <td>${purchase.city}</td>
+                <td>${new Intl.DateTimeFormat('zh-CN').format(new Date(purchase.date))}</td>
+                <td>${purchase.gender}</td>
+                <td>${purchase.age}</td>
+                <td>${purchase.face}</td>
+                <td>${purchase.time}</td>
+                <td>${purchase.reason}</td>
+                <td><button onclick="deletePurchase(${purchase.id})">删除</button></td>
+                `;
+                        recordsBody.appendChild(row);
+
+                        // 在地图上显示每个购买记录的标记
+                        let formattedDate = new Intl.DateTimeFormat('zh-CN').format(new Date(purchase.date));
+                        L.marker([purchase.latitude, purchase.longitude]).addTo(myMap)
+                            .bindPopup(`姓名: ${purchase.customer}, 地址: ${purchase.city}, 日期: ${formattedDate}, 性别: ${purchase.gender}, 年龄: ${purchase.age}, 左右脸: ${purchase.face}, 患病时长: ${purchase.time}, 病因: ${purchase.reason}`);
+                    });
+                })
+                .catch(error => console.error('Error loading purchases:', error));
+        }
+
+        function deletePurchase(id) {
+            // 发送删除请求到服务器
+            fetch(`http://47.103.10.235:3000/api/purchases/${id}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // 如果删除成功，重新获取和显示所有记录
+                        fetchAndDisplayPurchases();
+                        // 重新加载地图上的标记
+                        loadPurchases(); // 这一行是新增的
+                    }
+                });
+        }
+
+        // 页面加载完毕时调用函数，以填充表格和地图标记
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayPurchases);
+
+        document.getElementById('togglePanelBtn').addEventListener('click', function () {
+            var panel = document.getElementById('sidePanel');
+            var arrowIcon = document.getElementById('arrowIcon');
+            panel.classList.toggle('open');
+
+            // 检查侧边栏是否已展开，据此更改箭头方向
+            if (panel.classList.contains('open')) {
+                arrowIcon.innerHTML = '&lt;'; // 使用HTML实体表示 <
+                this.style.left = "40%"; // 调整按钮的位置以贴近侧边栏右侧
+            } else {
+                arrowIcon.innerHTML = '&gt;'; // 使用HTML实体表示 >
+                this.style.left = "0"; // 恢复按钮的原始位置
+            }
+
+            // 确保地图大小调整后重新设置地图视图
+            myMap.invalidateSize();
+        });
+
+        document.querySelectorAll('th[data-type]').forEach(header => {
+            header.addEventListener('click', () => {
+                // 获取排序的列索引
+                const columnIndex = [...header.parentNode.children].indexOf(header);
+                const sortType = header.getAttribute('data-type');
+                const column = header.getAttribute('data-column');
+                let direction = header.getAttribute('data-direction') || 'asc'; // 默认升序
+                const rows = Array.from(document.getElementById('recordsBody').rows);
+
+                // 比较函数
+                const comparer = (a, b) => {
+                    if (sortType === 'string') {
+                        return a < b ? -1 : a > b ? 1 : 0;
+                    } else if (sortType === 'date') {
+                        return new Date(a) - new Date(b);
+                    }
+                };
+
+                // 排序
+                rows.sort((rowA, rowB) => {
+                    const cellA = rowA.cells[columnIndex].innerText;
+                    const cellB = rowB.cells[columnIndex].innerText;
+                    return direction === 'asc' ? comparer(cellA, cellB) : comparer(cellB, cellA);
+                });
+                // 更新方向
+                direction = direction === 'asc' ? 'desc' : 'asc';
+                header.setAttribute('data-direction', direction);
+
+                // 重新添加排序后的行到tbody
+                rows.forEach(row => document.getElementById('recordsBody').appendChild(row));
+            });
+        });
+
+    </script>
+</body>
+
+</html>

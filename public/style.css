@@ -1,0 +1,238 @@
+/* 基础样式设置 */
+body {
+    background-color: #f8f9fa;
+    color: #212529;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+/* 表单整体布局 */
+#purchaseForm {
+    display: grid;
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto; /* 中心对齐 */
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* 输入框和按钮样式 */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea,
+button {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #80bdff;
+    outline: none;
+}
+
+button {
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* 删除按钮样式 */
+td button {
+    background-color: #dc3545;
+}
+
+td button:hover {
+    background-color: #c82333;
+}
+
+/* 地图容器样式 */
+#map {
+    height: 80vh;
+    width: 80vw;
+    margin: 20px auto; /* 中心对齐 */
+    margin-top: 5px;
+}
+
+/* 表单行样式，用于排列表单元素 */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* 单选按钮的自定义样式 */
+.radio-group {
+    display: flex;
+    align-items: center;
+}
+
+.radio-group label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+.radio-group input[type="radio"] {
+    margin-right: 8px;
+}
+
+/* 调整文本区域的样式 */
+textarea {
+    resize: vertical; /* 允许垂直调整大小 */
+}
+
+/* 优化单选按钮组的布局 */
+.radio-group {
+    justify-content: start;
+}
+
+/* 单选按钮美化 */
+.radio-group input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ced4da;
+    border-radius: 50%;
+    background-color: #fff;
+    position: relative;
+}
+
+.radio-group input[type="radio"]:checked::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #007bff;
+}
+
+/* 确保最后一个表单行的外边距为零 */
+.form-row:last-of-type {
+    margin-bottom: 0;
+}
+
+/* 调整按钮的外观 */
+#purchaseForm button[type="submit"] {
+    margin-top: 0px;
+}
+
+
+/* 侧边栏样式 */
+.side-panel {
+    position: fixed;
+    left: -40%; /* 默认隐藏 */
+    top: 0;
+    width: 40%;
+    height: 100vh; /* 全屏高度 */
+    background-color: #e9ecef; /* 背景颜色 */
+    color: #495057; /* 文本颜色 */
+    transition: left 0.5s; /* 平滑过渡效果 */
+    overflow-y: auto; /* 内容过长时可滚动 */
+    z-index: 1001; /* 层级 */
+}
+
+.side-panel.open {
+    left: 0; /* 展开时位置 */
+}
+
+/* 表格样式 */
+table {
+    border-collapse: separate;
+    border-spacing: 0 15px; /* 单元格间距 */
+}
+
+th, td {
+    padding: 10px; /* 单元格内边距 */
+    text-align: center; /* 使文字在这些元素内水平居中 */
+}
+
+th {
+    background-color: #dee2e6; /* 表头背景颜色 */
+    color: #495057; /* 表头文本颜色 */
+
+}
+
+/* “用户列表”标题和分割线样式 */
+#records:before, #records:after {
+    content: "";
+    display: block;
+    margin: 20px 0;
+}
+
+#records:before {
+    content: "用户列表"; /* 标题文本 */
+    font-size: 24px; /* 字体大小 */
+    color: #007bff; /* 颜色 */
+}
+
+#records:after {
+    border-bottom: 2px solid #007bff; /* 分割线样式 */
+}
+
+/* 切换按钮样式 */
+#togglePanelBtn {
+    position: fixed;
+    z-index: 1002; /* 确保在顶层 */
+    left: 0; /* 按钮初始位置 */
+    top: 50%; /* 垂直中心 */
+    transform: translateY(-50%); /* 垂直居中 */
+    background-color: white; /* 背景颜色 */
+    color: #007bff; /* 图标颜色 */
+    border-radius: 50%; /* 圆形 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 阴影效果 */
+    width: 40px; /* 宽度 */
+    height: 40px; /* 高度 */
+    display: flex;
+    justify-content: center; /* 水平居中 */
+    align-items: center; /* 垂直居中 */
+}
+
+#arrowIcon {
+    font-size: 40px; /* 图标大小 */
+    transition: transform 0.3s ease; /* 过渡效果 */
+}
+
+#records {
+    background-color: #fff;
+    /* 表格和表单背景色 */
+    border-radius: 5px;
+    /* 添加圆角 */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* 添加轻微的阴影 */
+    padding: 20px;
+    /* 增加内边距 */
+    margin: 20px 0;
+    /* 增加外边距 */
+}
+
+table {
+    width: 100%; /* 确保表格充满容器 */
+    table-layout: fixed; /* 使用固定布局 */
+    border-collapse: separate;
+    border-spacing: 0 15px;
+}
+
+th:nth-of-type(1), td:nth-of-type(1) { min-width: 100px; }
+th:nth-of-type(2), td:nth-of-type(2) { min-width: 100px; }
+th:nth-of-type(3), td:nth-of-type(3) { min-width: 150px; }
+th:nth-of-type(4), td:nth-of-type(4) { min-width: 100px; }
+
+.sort-icon {
+    margin-left: 5px; /* 为图标和文本添加一点空间 */
+    cursor: pointer; /* 当鼠标悬停时显示指针 */
+}

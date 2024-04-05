@@ -53,7 +53,7 @@
         <!-- 地区和日期 -->
         <div class="form-row">
 
-            <input type="date" id="purchaseTime" placeholder="时间" required >
+            <input type="date" id="purchaseTime" placeholder="时间" required>
             <input type="text" id="time" placeholder="患病时长(年/月/日)" required style="margin-left: 10px;">
             <input type="text" id="reason" placeholder="病因" required style="margin-left: 10px;">
         </div>
@@ -187,7 +187,11 @@
                         const row = document.createElement('tr');
                         row.innerHTML = `
                 <td>${purchase.customer}</td>
-                <td>${purchase.city}</td>
+                <td>
+    <span class="fake-link" onclick="toggleAddressDisplay(this)">${purchase.city.substring(0, 3)}</span>
+    <span class="full-address" style="display: none;" onclick="toggleAddressDisplay(this)">${purchase.city}</span>
+</td>
+
                 <td>${new Intl.DateTimeFormat('zh-CN').format(new Date(purchase.date))}</td>
                 <td>${purchase.gender}</td>
                 <td>${purchase.age}</td>
@@ -222,6 +226,25 @@
                 });
         }
 
+        function toggleAddressDisplay(element) {
+            // 判断当前点击的是简写地址还是完整地址
+            const isShort = element.nextElementSibling && element.nextElementSibling.classList.contains('full-address');
+            const shortAddress = isShort ? element : element.previousElementSibling;
+            const fullAddress = isShort ? element.nextElementSibling : element;
+
+            if (isShort) {
+                // 如果点击的是简写地址，显示完整地址，隐藏简写地址
+                shortAddress.style.display = "none";
+                fullAddress.style.display = "inline";
+            } else {
+                // 如果点击的是完整地址，显示简写地址，隐藏完整地址
+                fullAddress.style.display = "none";
+                shortAddress.style.display = "inline";
+            }
+        }
+
+
+
         // 页面加载完毕时调用函数，以填充表格和地图标记
         document.addEventListener('DOMContentLoaded', fetchAndDisplayPurchases);
 
@@ -233,7 +256,7 @@
             // 检查侧边栏是否已展开，据此更改箭头方向
             if (panel.classList.contains('open')) {
                 arrowIcon.innerHTML = '&lt;'; // 使用HTML实体表示 <
-                this.style.left = "40%"; // 调整按钮的位置以贴近侧边栏右侧
+                this.style.left = "50%"; // 调整按钮的位置以贴近侧边栏右侧
             } else {
                 arrowIcon.innerHTML = '&gt;'; // 使用HTML实体表示 >
                 this.style.left = "0"; // 恢复按钮的原始位置

@@ -135,9 +135,9 @@ textarea {
 /* 侧边栏样式 */
 .side-panel {
     position: fixed;
-    left: -40%; /* 默认隐藏 */
+    left: -50%; /* 默认隐藏 */
     top: 0;
-    width: 40%;
+    width: 50%;
     height: 100vh; /* 全屏高度 */
     background-color: #e9ecef; /* 背景颜色 */
     color: #495057; /* 文本颜色 */
@@ -227,12 +227,21 @@ table {
     border-spacing: 0 15px;
 }
 
-th:nth-of-type(1), td:nth-of-type(1) { min-width: 100px; }
+th:nth-of-type(1), td:nth-of-type(1) { min-width: 500px; }
 th:nth-of-type(2), td:nth-of-type(2) { min-width: 100px; }
-th:nth-of-type(3), td:nth-of-type(3) { min-width: 150px; }
-th:nth-of-type(4), td:nth-of-type(4) { min-width: 100px; }
+
 
 .sort-icon {
     margin-left: 5px; /* 为图标和文本添加一点空间 */
     cursor: pointer; /* 当鼠标悬停时显示指针 */
+}
+
+.fake-link {
+    color: #007bff; /* 超链接蓝色 */
+    cursor: pointer; /* 鼠标变为手形，表示可点击 */
+    text-decoration: underline; /* 下划线，模仿超链接 */
+}
+
+.fake-link:hover {
+    text-decoration: none; /* 鼠标悬停时移除下划线，可选 */
 }
